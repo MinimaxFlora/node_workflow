@@ -1,0 +1,21 @@
+#!/bin/sh
+# Wrapper installed as /usr/bin/node by the node package (see Makefile).
+#
+# The real binary lives in /usr/libexec/node on purpose: both npm's
+# loadGlobalPrefix() (@npmcli/config: dirname(dirname(execPath))) and Node's
+# own global module paths (lib/internal/modules/cjs/loader.js: prefixDir =
+# path.resolve(process.execPath, '..', '..') + '/lib/node_modules') derive the
+# installation prefix from the executable path, and /usr/libexec/node keeps
+# that prefix at /usr.  Putting it in e.g. /usr/lib/node/bin/node would move
+# the prefix to /usr/lib/node and break `npm i -g` (/usr/lib/node_modules) and
+# global module resolution.
+#
+# --expose-internals is added for every process launched through this path.
+# npm/npx start bin scripts via their shebang (/usr/bin/env node -> PATH), so
+# this covers them; that is what makes `npx @deepseek-ai/dsh web` work on musl
+# targets, where the fallback native addon node-addon-require-builtin publishes
+# no musl prebuild and therefore cannot expose Node's internal ESM loader.
+#
+# Node tolerates a repeated --expose-internals, so callers that pass the flag
+# themselves are unaffected.
+exec /usr/libexec/node --expose-internals "$@"
