@@ -140,8 +140,9 @@ define Build/InstallDev
 endef
 
 define Package/node/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/node $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/node $(1)/usr/libexec/node
+	$(INSTALL_BIN) ./files/node-wrapper $(1)/usr/bin/node
 endef
 
 define Package/node-npm/install
